@@ -11,10 +11,16 @@ public enum playerID
 
 public class Player {
 
-    float initialHp = 100;
+    int initialHp = 100;
+    int invTicks = 4;
+    int currentInvTicks = 0;
     bool alive;
-    float currentHp;
+    public bool Alive { get { return alive; } }
+    int currentHp;
+    bool invulnerable = false;
+    public int CurrentHp { get { return currentHp; } }
     playerID myID;
+    public bool shoots;
     public playerID GetID { get { return myID; } }
     Vector2Int currentPos;
     public Vector2Int GetPos { get { return currentPos; } }
@@ -24,6 +30,7 @@ public class Player {
     {
         myID = iD;
         currentHp = initialHp;
+        alive = true;
         currentPos = spawnPos;
         currentSpecials = new List<ISpecial>();
     }    
@@ -44,21 +51,39 @@ public class Player {
     }
     public void ReciveDamage(int damage)
     {
-        currentHp -= damage;
-        if (currentHp <= 0)
+        if (!invulnerable && alive)
         {
-            alive = false;//RIP
-            currentHp = 0;
+            currentHp -= damage;
+            invulnerable = true;
+            if (currentHp <= 0)
+            {
+                alive = false;//RIP
+                currentHp = 0;
+            }
+        }       
+    }
+    public void ReduceInvTime()
+    {
+        if (invulnerable)
+        {
+            currentInvTicks++;
+            if (currentInvTicks > invTicks)
+            {
+                invulnerable = false;
+                currentInvTicks = 0;
+            }
         }
     }
 
     public bool TryToMove(Vector2Int mov)
     {
-        if ((currentPos + mov).x < 3 +((int)myID *3) && (currentPos + mov).x >= 0 + ((int)myID * 3) && (currentPos + mov).y < 3 && (currentPos + mov).y >= 0)
+        
+        if ((currentPos + mov).x < 3 + ((int)myID * 3) && (currentPos + mov).x >= 0 + ((int)myID * 3) && (currentPos + mov).y < 3 && (currentPos + mov).y >= 0)
         {
             currentPos += mov;
             return true;
         }
+               
         return false;
     }
 }
